@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>복리 계산기</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .calculator {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-radius: 5px;
+            display: none;
+        }
+        #resultTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        #resultTable th, #resultTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        #resultTable th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+        #resultTable tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .chart-container {
+            margin-top: 20px;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h2>복리 계산기</h2>
+        <p>투자 원금, 이자율, 기간을 입력하여 복리 효과를 계산해보세요.</p>
+        
+        <div class="form-group">
+            <label for="principal">초기 투자금액 (원)</label>
+            <input type="number" id="principal" min="0" value="1000000">
+        </div>
+        
+        <div class="form-group">
+            <label for="rate">연이율 (%)</label>
+            <input type="number" id="rate" min="0" step="0.1" value="5">
+        </div>
+        
+        <div class="form-group">
+            <label for="time">투자 기간 (년)</label>
+            <input type="number" id="time" min="1" max="50" value="10">
+        </div>
+        
+        <div class="form-group">
+            <label for="addition">매년 추가 투자금액 (원)</label>
+            <input type="number" id="addition" min="0" value="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="frequency">복리 계산 주기</label>
+            <select id="frequency">
+                <option value="1">연복리 (1년마다)</option>
+                <option value="2">반기복리 (6개월마다)</option>
+                <option value="4">분기복리 (3개월마다)</option>
+                <option value="12">월복리 (1개월마다)</option>
+                <option value="365">일복리 (매일)</option>
+            </select>
+        </div>
+        
+        <button onclick="calculateCompoundInterest()">계산하기</button>
+        
+        <div id="result" class="result">
+            <h3>계산 결과</h3>
+            <p><strong>초기 투자금액:</strong> <span id="initialAmount"></span>원</p>
+            <p><strong>총 투자금액:</strong> <span id="totalInvestment"></span>원</p>
+            <p><strong>최종 금액:</strong> <span id="finalAmount"></span>원</p>
+            <p><strong>총 이자:</strong> <span id="totalInterest"></span>원</p>
+            
+            <h4>연도별 상세 내역</h4>
+            <table id="resultTable">
+                <thead>
+                    <tr>
+                        <th>연차</th>
+                        <th>원금</th>
+                        <th>이자</th>
+                        <th>연말 금액</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function calculateCompoundInterest() {
+            // 입력값 가져오기
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('rate').value) / 100;
+            const time = parseInt(document.getElementById('time').value);
+            const additionalContribution = parseFloat(document.getElementById('addition').value);
+            const frequency = parseInt(document.getElementById('frequency').value);
+            
+            // 계산
+            let balance = principal;
+            const results = [];
+            let totalContribution = principal;
+            
+            for (let year = 1; year <= time; year++) {
+                let yearlyInterest = 0;
+                const startYearBalance = balance;
+                
+                // 복리 계산
+                for (let period = 0; period < frequency; period++) {
+                    const periodInterest = balance * (rate / frequency);
+                    balance += periodInterest;
+                    yearlyInterest += periodInterest;
+                }
+                
+                // 추가 투자금 (첫 해에는 이미 초기 투자금을 포함했으므로 제외)
+                if (year < time) {
+                    balance += additionalContribution;
+                    totalContribution += additionalContribution;
+                }
+                
+                results.push({
+                    year,
+                    startBalance: startYearBalance,
+                    interest: yearlyInterest,
+                    endBalance: balance
+                });
+            }
+            
+            // 결과 표시
+            document.getElementById('initialAmount').textContent = formatNumber(principal);
+            document.getElementById('totalInvestment').textContent = formatNumber(totalContribution);
+            document.getElementById('finalAmount').textContent = formatNumber(balance);
+            document.getElementById('totalInterest').textContent = formatNumber(balance - totalContribution);
+            
+            // 테이블 생성
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            results.forEach(result => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = result.year;
+                row.insertCell(1).textContent = formatNumber(result.startBalance);
+                row.insertCell(2).textContent = formatNumber(result.interest);
+                row.insertCell(3).textContent = formatNumber(result.endBalance);
+            });
+            
+            // 결과 표시
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        // 숫자 형식화 함수
+        function formatNumber(number) {
+            return number.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+    </script>
+</body>
+</html> 
