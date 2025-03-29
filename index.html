@@ -3,175 +3,488 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>복리 계산기</title>
+    <title>챌린지 복리 계산기</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
         body {
-            font-family: 'Malgun Gothic', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
         }
+
         .calculator {
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background-color: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
         }
+
+        h2 {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .calculator > p {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
+
         label {
             display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-size: 15px;
         }
+
         input, select {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 12px 15px;
+            border: 1px solid #e0e5ea;
+            border-radius: 10px;
             box-sizing: border-box;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
         }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            background-color: white;
+        }
+
         button {
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            padding: 14px 20px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 16px;
             width: 100%;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans KR', sans-serif;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(41, 128, 185, 0.3);
         }
+
         button:hover {
-            background-color: #45a049;
+            background: linear-gradient(135deg, #2980b9, #2471a3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(41, 128, 185, 0.4);
         }
+
+        button:active {
+            transform: translateY(0);
+        }
+
         .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9f7ef;
-            border-radius: 5px;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8fafc;
+            border-radius: 14px;
             display: none;
+            border: 1px solid #eaeff5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
         }
+
+        .result h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-weight: 600;
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eaeff5;
+        }
+
+        .result p {
+            margin-bottom: 10px;
+            color: #34495e;
+            font-size: 15px;
+        }
+
+        .result p strong {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .result p span {
+            font-weight: 600;
+            color: #16a085;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        /* 테이블 컨테이너 스타일 수정 */
+        .table-container {
+            max-height: 400px; /* 높이 증가 */
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #eaeff5;
+            position: relative; /* 추가 */
+        }
+
+        /* 테이블 스타일 수정 */
         #resultTable {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            background-color: white;
+            table-layout: fixed; /* 추가: 컬럼 너비 고정 */
         }
+
+        /* 테이블 헤더 고정 스타일 */
+        #resultTable thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        /* 테이블 셀 스타일 수정 */
         #resultTable th, #resultTable td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px 8px; /* 패딩 줄임 */
             text-align: right;
+            font-size: 14px;
+            overflow: hidden; /* 추가: 오버플로우 처리 */
+            text-overflow: ellipsis; /* 추가: 텍스트 오버플로우 처리 */
+            white-space: nowrap; /* 추가: 줄바꿈 방지 */
         }
-        #resultTable th {
-            background-color: #f2f2f2;
-            text-align: center;
+
+        /* 컬럼 너비 지정 */
+        #resultTable th:nth-child(1),
+        #resultTable td:nth-child(1) {
+            width: 15%; /* 일차 */
         }
-        #resultTable tr:nth-child(even) {
-            background-color: #f9f9f9;
+
+        #resultTable th:nth-child(2),
+        #resultTable td:nth-child(2),
+        #resultTable th:nth-child(3),
+        #resultTable td:nth-child(3),
+        #resultTable th:nth-child(4),
+        #resultTable td:nth-child(4) {
+            width: 20%; /* 원금, 수익, 누적금액 */
         }
-        .chart-container {
-            margin-top: 20px;
-            height: 300px;
+
+        #resultTable th:nth-child(5),
+        #resultTable td:nth-child(5) {
+            width: 25%; /* 조언 & 코멘트 */
+            text-align: left;
+        }
+
+        /* 모바일 최적화 추가 */
+        @media (max-width: 500px) {
+            .calculator {
+                padding: 15px;
+            }
+            
+            input, select, button {
+                padding: 10px;
+            }
+            
+            .result {
+                padding: 15px;
+            }
+            
+            #resultTable th, #resultTable td {
+                padding: 8px 5px;
+                font-size: 12px;
+            }
+            
+            /* 모바일에서는 코멘트 컬럼 숨기고 토글 버튼 표시 */
+            #resultTable th:nth-child(5),
+            #resultTable td:nth-child(5) {
+                display: none;
+            }
+            
+            /* 컬럼 너비 재조정 (모바일) */
+            #resultTable th:nth-child(1),
+            #resultTable td:nth-child(1) {
+                width: 20%;
+            }
+            
+            #resultTable th:nth-child(2),
+            #resultTable td:nth-child(2),
+            #resultTable th:nth-child(3),
+            #resultTable td:nth-child(3),
+            #resultTable th:nth-child(4),
+            #resultTable td:nth-child(4) {
+                width: 26.66%;
+            }
+        }
+
+        /* 코멘트 토글 버튼 스타일 (모바일용) */
+        .comment-toggle {
+            display: none; /* 기본적으로 숨김 */
+            margin-top: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 500px) {
+            .comment-toggle {
+                display: block; /* 모바일에서만 표시 */
+            }
+        }
+
+        /* 테이블 행 호버 효과 */
+        #resultTable tbody tr:hover {
+            background-color: #f0f8ff !important;
+        }
+
+        /* 마일스톤 행 스타일 강화 */
+        #resultTable tr.milestone {
+            background-color: #e8f6f3;
+            font-weight: 500;
+            border-left: 3px solid #16a085;
+        }
+
+        /* 코멘트 셀 포맷팅 개선 */
+        .comment {
+            color: #3498db;
+            font-size: 13px;
+            text-align: left !important;
+            font-weight: 500;
+            padding-left: 15px !important;
+            white-space: normal !important; /* 코멘트는 줄바꿈 허용 */
+            line-height: 1.4;
+        }
+
+        .motivation {
+            margin-top: 25px;
+            padding: 18px 20px;
+            background-color: #ebf5fb;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #2980b9;
+        }
+
+        #motivationText {
+            animation: highlight 2s ease-in-out;
+        }
+
+        #totalInterest {
+            font-size: 17px;
+            color: #27ae60;
+        }
+
+        #successRate {
+            font-weight: 700;
+            color: #e74c3c;
+        }
+
+        @keyframes highlight {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .advice-box {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e6edf5;
+        }
+
+        .advice-box h4 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .advice-box ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+
+        .advice-box li {
+            margin-bottom: 10px;
+            color: #34495e;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .advice-box li:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .comment-summary {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            border: 1px solid #d1e6fa;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .comment-summary h4 {
+            margin-top: 0;
+            color: #2980b9;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .comment-summary p {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #34495e;
+        }
+        
+        .comment-summary p strong {
+            color: #2980b9;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <h2>복리 계산기</h2>
-        <p>투자 원금, 이자율, 기간을 입력하여 복리 효과를 계산해보세요.</p>
+        <h2>챌린지 복리 계산기</h2>
+        <p>매일 투자하고 복리 효과를 확인해보세요. 작은 습관이 큰 변화를 만듭니다!</p>
         
         <div class="form-group">
-            <label for="principal">초기 투자금액 (원)</label>
-            <input type="number" id="principal" min="0" value="1000000">
+            <label for="principal">초기 금액 (원)</label>
+            <input type="number" id="principal" min="0" value="10000">
         </div>
         
         <div class="form-group">
-            <label for="rate">연이율 (%)</label>
-            <input type="number" id="rate" min="0" step="0.1" value="5">
+            <label for="rate">일일 수익률 (%)</label>
+            <input type="number" id="rate" min="0" step="0.1" value="0.5">
         </div>
         
         <div class="form-group">
-            <label for="time">투자 기간 (년)</label>
-            <input type="number" id="time" min="1" max="50" value="10">
+            <label for="time">챌린지 기간 (일)</label>
+            <input type="number" id="time" min="1" max="365" value="30">
         </div>
         
         <div class="form-group">
-            <label for="addition">매년 추가 투자금액 (원)</label>
-            <input type="number" id="addition" min="0" value="0">
+            <label for="addition">매일 추가 금액 (원)</label>
+            <input type="number" id="addition" min="0" value="1000">
         </div>
         
-        <div class="form-group">
-            <label for="frequency">복리 계산 주기</label>
-            <select id="frequency">
-                <option value="1">연복리 (1년마다)</option>
-                <option value="2">반기복리 (6개월마다)</option>
-                <option value="4">분기복리 (3개월마다)</option>
-                <option value="12">월복리 (1개월마다)</option>
-                <option value="365">일복리 (매일)</option>
-            </select>
-        </div>
-        
-        <button onclick="calculateCompoundInterest()">계산하기</button>
+        <button onclick="calculateDailyCompound()">챌린지 결과 보기</button>
         
         <div id="result" class="result">
-            <h3>계산 결과</h3>
-            <p><strong>초기 투자금액:</strong> <span id="initialAmount"></span>원</p>
+            <h3>챌린지 결과</h3>
+            <p><strong>초기 금액:</strong> <span id="initialAmount"></span>원</p>
             <p><strong>총 투자금액:</strong> <span id="totalInvestment"></span>원</p>
             <p><strong>최종 금액:</strong> <span id="finalAmount"></span>원</p>
-            <p><strong>총 이자:</strong> <span id="totalInterest"></span>원</p>
+            <p><strong>총 수익:</strong> <span id="totalInterest"></span>원</p>
+            <p><strong>성공률:</strong> <span id="successRate"></span>%</p>
             
-            <h4>연도별 상세 내역</h4>
-            <table id="resultTable">
-                <thead>
-                    <tr>
-                        <th>연차</th>
-                        <th>원금</th>
-                        <th>이자</th>
-                        <th>연말 금액</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            
+            <h4>일별 상세 내역</h4>
+            <div class="table-container">
+                <table id="resultTable">
+                    <thead>
+                        <tr>
+                            <th>일차</th>
+                            <th>원금</th>
+                            <th>수익</th>
+                            <th>누적 금액</th>
+                            <th>조언 & 코멘트</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <button id="commentToggle" class="comment-toggle" onclick="toggleComments()">코멘트 모아보기</button>
+            
+            <div class="motivation">
+                <p id="motivationText"></p>
+            </div>
         </div>
     </div>
 
     <script>
-        function calculateCompoundInterest() {
+        function calculateDailyCompound() {
             // 입력값 가져오기
             const principal = parseFloat(document.getElementById('principal').value);
             const rate = parseFloat(document.getElementById('rate').value) / 100;
-            const time = parseInt(document.getElementById('time').value);
+            const days = parseInt(document.getElementById('time').value);
             const additionalContribution = parseFloat(document.getElementById('addition').value);
-            const frequency = parseInt(document.getElementById('frequency').value);
             
             // 계산
             let balance = principal;
             const results = [];
             let totalContribution = principal;
             
-            for (let year = 1; year <= time; year++) {
-                let yearlyInterest = 0;
-                const startYearBalance = balance;
+            for (let day = 1; day <= days; day++) {
+                const startDayBalance = balance;
                 
-                // 복리 계산
-                for (let period = 0; period < frequency; period++) {
-                    const periodInterest = balance * (rate / frequency);
-                    balance += periodInterest;
-                    yearlyInterest += periodInterest;
-                }
+                // 일일 복리 계산
+                const dailyInterest = balance * rate;
+                balance += dailyInterest;
                 
-                // 추가 투자금 (첫 해에는 이미 초기 투자금을 포함했으므로 제외)
-                if (year < time) {
-                    balance += additionalContribution;
-                    totalContribution += additionalContribution;
-                }
+                // 추가 금액
+                balance += additionalContribution;
+                totalContribution += additionalContribution;
+                
+                // 일별 성과 코멘트 생성
+                let dailyComment = getDailyComment(day, days, dailyInterest, additionalContribution);
                 
                 results.push({
-                    year,
-                    startBalance: startYearBalance,
-                    interest: yearlyInterest,
-                    endBalance: balance
+                    day,
+                    startBalance: startDayBalance,
+                    interest: dailyInterest,
+                    endBalance: balance,
+                    comment: dailyComment
                 });
             }
             
@@ -179,7 +492,18 @@
             document.getElementById('initialAmount').textContent = formatNumber(principal);
             document.getElementById('totalInvestment').textContent = formatNumber(totalContribution);
             document.getElementById('finalAmount').textContent = formatNumber(balance);
-            document.getElementById('totalInterest').textContent = formatNumber(balance - totalContribution);
+            
+            const totalInterest = balance - totalContribution;
+            document.getElementById('totalInterest').textContent = formatNumber(totalInterest);
+            
+            // 성공률 계산 (목표 대비)
+            const successRate = ((totalInterest) / totalContribution * 100).toFixed(2);
+            document.getElementById('successRate').textContent = successRate;
+            
+            // 프로그레스 바 업데이트
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = Math.min(100, parseFloat(successRate) * 2); // 시각적 효과를 위해 2배로
+            progressBar.style.width = progressPercent + '%';
             
             // 테이블 생성
             const tableBody = document.getElementById('tableBody');
@@ -187,19 +511,184 @@
             
             results.forEach(result => {
                 const row = tableBody.insertRow();
-                row.insertCell(0).textContent = result.year;
+                
+                // 특정 마일스톤에 도달했을 때 강조 표시
+                if (result.day % 5 === 0 || result.day === days) {
+                    row.className = 'milestone';
+                }
+                
+                row.insertCell(0).textContent = result.day + '일차';
                 row.insertCell(1).textContent = formatNumber(result.startBalance);
                 row.insertCell(2).textContent = formatNumber(result.interest);
-                row.insertCell(3).textContent = formatNumber(result.endBalance);
+                
+                // 금액 셀 생성
+                const amountCell = row.insertCell(3);
+                amountCell.textContent = formatNumber(result.endBalance);
+                
+                // 코멘트 셀 추가
+                if (result.day % 5 === 0 || result.day === 1 || result.day === days) {
+                    const commentCell = row.insertCell(4);
+                    commentCell.textContent = result.comment;
+                    commentCell.className = 'comment';
+                    commentCell.colSpan = 1;
+                }
             });
+            
+            // 테이블 헤더에 코멘트 컬럼 추가
+            const headerRow = document.querySelector('#resultTable thead tr');
+            if (headerRow.children.length < 5) {
+                const commentHeader = document.createElement('th');
+                commentHeader.textContent = '조언 & 코멘트';
+                headerRow.appendChild(commentHeader);
+            }
+            
+            // 최종 동기 부여 메시지
+            const motivationText = document.getElementById('motivationText');
+            if (successRate > 50) {
+                motivationText.innerHTML = `<strong>놀라운 성과입니다!</strong> ${days}일 동안 총 <span class="highlight">${formatNumber(totalInterest)}원</span>의 수익을 얻었습니다. 이 습관을 1년 동안 유지한다면 복리 효과는 더욱 커질 것입니다. 당신의 재정적 자유를 향한 여정이 순조롭게 진행되고 있습니다!`;
+            } else if (successRate > 20) {
+                motivationText.innerHTML = `<strong>좋은 진전입니다!</strong> ${days}일 만에 <span class="highlight">${formatNumber(totalInterest)}원</span>의 수익을 얻었습니다. 지금처럼 꾸준히 투자하면서 투자 금액을 점진적으로 늘려보는 것도 좋은 전략입니다. 복리의 힘은 시간이 지날수록 강력해집니다.`;
+            } else {
+                motivationText.innerHTML = `<strong>훌륭한 시작입니다!</strong> 비록 ${formatNumber(totalInterest)}원의 수익이 크게 느껴지지 않을 수 있지만, 가장 중요한 것은 투자 습관을 형성하는 것입니다. 투자 금액보다 투자의 일관성이 장기적으로 더 중요합니다. 계속 유지하세요!`;
+            }
+            
+            // 추가 조언 제공
+            const adviceBox = document.createElement('div');
+            adviceBox.className = 'advice-box';
+            adviceBox.innerHTML = getFinalAdvice(totalInterest, successRate, days, additionalContribution);
+            
+            // 기존 advice-box가 있으면 제거
+            const existingAdviceBox = document.querySelector('.advice-box');
+            if (existingAdviceBox) {
+                existingAdviceBox.remove();
+            }
+            
+            // 결과 영역에 조언 추가
+            document.getElementById('result').appendChild(adviceBox);
             
             // 결과 표시
             document.getElementById('result').style.display = 'block';
         }
-        
+
+        // 일별 코멘트 생성 함수
+        function getDailyComment(day, totalDays, dailyInterest, dailyContribution) {
+            // 첫째 날
+            if (day === 1) {
+                return "👋 첫날입니다! 작은 시작이 모여 큰 성취를 이룹니다.";
+            }
+            
+            // 5일 단위 마일스톤
+            if (day % 5 === 0) {
+                if (day === 5) {
+                    return "✨ 5일 연속 달성! 습관이 형성되기 시작했습니다.";
+                } else if (day === 10) {
+                    return "🔥 10일 연속! 이제 복리 효과가 나타나기 시작합니다.";
+                } else if (day === 15) {
+                    return "💪 15일 절반을 넘었습니다! 계속 유지하세요.";
+                } else if (day === 20) {
+                    return "⭐ 20일차! 대단합니다. 이미 상위 20%의 의지력입니다.";
+                } else if (day === 25) {
+                    return "🎯 25일! 거의 다 왔어요. 인내심이 결실을 맺고 있습니다.";
+                } else if (day === 30) {
+                    return "🏆 30일 완성! 한 달의 노력이 모였습니다. 다음 달에도 계속하세요!";
+                } else if (day % 10 === 0) {
+                    return `📊 ${day}일차 달성! 꾸준함이 당신의 자산이 되고 있습니다.`;
+                } else {
+                    return `🌱 ${day}일차 달성! 복리의 씨앗이 자라고 있습니다.`;
+                }
+            }
+            
+            // 마지막 날
+            if (day === totalDays && day !== 30 && day % 5 !== 0) {
+                return `🎊 축하합니다! ${totalDays}일 챌린지를 완수했습니다!`;
+            }
+            
+            // 일반적인 날에는 코멘트 생략 (테이블 간결성 유지)
+            return "";
+        }
+
+        // 최종 조언 생성 함수
+        function getFinalAdvice(totalInterest, successRate, days, dailyContribution) {
+            const annualProjection = (totalInterest / days * 365).toFixed(0);
+            const adviceList = [];
+            
+            // 핵심 조언 생성
+            if (successRate < 20) {
+                adviceList.push("📈 <strong>수익률 높이기</strong>: 현재 수익률이 낮습니다. 다양한 투자 수단의 평균 수익률을 조사해보세요.");
+            }
+            
+            if (dailyContribution < 5000) {
+                adviceList.push("💰 <strong>투자금액 늘리기</strong>: 가능하다면 일일 투자금액을 점진적으로 늘려보세요. 한 달 커피 한 잔 줄이면 약 5,000원을 더 투자할 수 있습니다.");
+            }
+            
+            if (days < 30) {
+                adviceList.push("⏱️ <strong>더 긴 기간으로</strong>: 챌린지 기간을 30일, 90일, 365일 등으로 늘려보세요. 복리의 진정한 효과는 장기간에 나타납니다.");
+            }
+            
+            // 공통 조언
+            adviceList.push(`💡 <strong>연간 예상 수익</strong>: 현재 페이스를 1년간 유지하면 약 ${formatNumber(annualProjection)}원의 추가 수익을 기대할 수 있습니다.`);
+            
+            // 고급 조언
+            if (successRate > 30) {
+                adviceList.push("🔄 <strong>재투자 전략</strong>: 수익금을 추가로 재투자하면 복리 효과가 더욱 커집니다. 수익이 발생할 때마다 일부를 추가 투자해보세요.");
+            }
+            
+            // 조언 HTML 생성
+            let adviceHTML = "<h4>💼 맞춤 투자 조언</h4><ul>";
+            adviceList.forEach(advice => {
+                adviceHTML += `<li>${advice}</li>`;
+            });
+            adviceHTML += "</ul>";
+            
+            return adviceHTML;
+        }
+
+        // 코멘트 모아보기 함수
+        function toggleComments() {
+            const commentToggle = document.getElementById('commentToggle');
+            const allComments = [];
+            
+            // 모든 일별 코멘트 수집
+            document.querySelectorAll('#tableBody tr').forEach(row => {
+                const day = row.cells[0].textContent;
+                if (row.classList.contains('milestone') || day === '1일차' || day === document.getElementById('time').value + '일차') {
+                    const comment = getDailyComment(
+                        parseInt(day), 
+                        parseInt(document.getElementById('time').value),
+                        0, 0
+                    );
+                    if (comment) {
+                        allComments.push(`<p><strong>${day}</strong>: ${comment}</p>`);
+                    }
+                }
+            });
+            
+            // 이미 표시된 코멘트 모음이 있는지 확인
+            const existingCommentSummary = document.getElementById('commentSummary');
+            
+            if (existingCommentSummary) {
+                // 이미 표시된 상태라면 제거
+                existingCommentSummary.remove();
+                commentToggle.textContent = '코멘트 모아보기';
+            } else {
+                // 아직 표시되지 않았다면 새로 생성
+                const commentSummary = document.createElement('div');
+                commentSummary.id = 'commentSummary';
+                commentSummary.className = 'comment-summary';
+                commentSummary.innerHTML = `
+                    <h4>📌 챌린지 주요 코멘트</h4>
+                    ${allComments.join('')}
+                `;
+                
+                // 결과 영역에 삽입
+                document.querySelector('.motivation').after(commentSummary);
+                commentToggle.textContent = '코멘트 숨기기';
+            }
+        }
+
         // 숫자 형식화 함수
         function formatNumber(number) {
-            return number.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
     </script>
 </body>
